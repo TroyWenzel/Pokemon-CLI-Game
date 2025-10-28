@@ -1,10 +1,99 @@
 # this file manages the player's inventory
 # it tracks: pokeballs, berries, evolution stones, candy, and badges
 
+from colorama import Fore, Style
+
 class Inventory:
     # ============================================================
     # the inventory is like the player's backpack - it holds everything the player needs to catch, evolve, and level up pokemon
     # ============================================================
+    
+    @staticmethod
+    def colorize_pokeball_name(ball_type):
+        """Colorize pokeball names with alternating letter colors"""
+        if ball_type == 'poké':
+            # Alternate bright red and bright white
+            name = "Poké Ball"
+            colored = ""
+            for i, char in enumerate(name):
+                if char == ' ':
+                    colored += char
+                elif i % 2 == 0:
+                    colored += f"{Fore.RED}{Style.BRIGHT}{char}{Style.RESET_ALL}"
+                else:
+                    colored += f"{Fore.WHITE}{Style.BRIGHT}{char}{Style.RESET_ALL}"
+            return colored
+        elif ball_type == 'great':
+            # Alternate bright red and bright blue
+            name = "Great Ball"
+            colored = ""
+            for i, char in enumerate(name):
+                if char == ' ':
+                    colored += char
+                elif i % 2 == 0:
+                    colored += f"{Fore.RED}{Style.BRIGHT}{char}{Style.RESET_ALL}"
+                else:
+                    colored += f"{Fore.BLUE}{Style.BRIGHT}{char}{Style.RESET_ALL}"
+            return colored
+        elif ball_type == 'ultra':
+            # Alternate bright yellow and dim white
+            name = "Ultra Ball"
+            colored = ""
+            for i, char in enumerate(name):
+                if char == ' ':
+                    colored += char
+                elif i % 2 == 0:
+                    colored += f"{Fore.YELLOW}{Style.BRIGHT}{char}{Style.RESET_ALL}"
+                else:
+                    colored += f"{Fore.WHITE}{Style.DIM}{char}{Style.RESET_ALL}"
+            return colored
+        elif ball_type == 'master':
+            # Alternate bright magenta and dim magenta
+            name = "Master Ball"
+            colored = ""
+            for i, char in enumerate(name):
+                if char == ' ':
+                    colored += char
+                elif i % 2 == 0:
+                    colored += f"{Fore.MAGENTA}{Style.BRIGHT}{char}{Style.RESET_ALL}"
+                else:
+                    colored += f"{Fore.MAGENTA}{Style.DIM}{char}{Style.RESET_ALL}"
+            return colored
+        return ball_type.capitalize()
+    
+    @staticmethod
+    def colorize_berry_name(berry_type):
+        """Colorize berry names"""
+        if berry_type == 'razz':
+            return f"{Fore.MAGENTA}{berry_type.capitalize()}{Style.RESET_ALL}"
+        elif berry_type == 'pinap':
+            return f"{Fore.YELLOW}{berry_type.capitalize()}{Style.RESET_ALL}"
+        return berry_type.capitalize()
+    
+    @staticmethod
+    def colorize_stone_name(stone_type):
+        """Colorize stone names"""
+        colors = {
+            'fire': Fore.RED,
+            'water': f"{Fore.BLUE}{Style.BRIGHT}",
+            'thunder': Fore.YELLOW,
+            'leaf': f"{Fore.GREEN}{Style.BRIGHT}",
+            'moon': f"{Fore.WHITE}{Style.DIM}"
+        }
+        color = colors.get(stone_type, '')
+        return f"{color}{stone_type.capitalize()}{Style.RESET_ALL}"
+    
+    @staticmethod
+    def colorize_badge_tier(tier):
+        """Colorize badge tier names"""
+        if tier == 'bronze':
+            return f"{Fore.YELLOW}{Style.DIM}{tier.upper()}{Style.RESET_ALL}"
+        elif tier == 'silver':
+            return f"{Fore.BLACK}{Style.BRIGHT}{tier.upper()}{Style.RESET_ALL}"
+        elif tier == 'gold':
+            return f"{Fore.YELLOW}{Style.BRIGHT}{tier.upper()}{Style.RESET_ALL}"
+        return tier.upper()
+    
     def __init__(self):
         # ============================================================
         # create a new inventory with starting items
@@ -199,12 +288,14 @@ class Inventory:
         # displays pokeballs section
         print("\n--- Pokéballs ---")
         for ball, count in self.pokeballs.items():
-            print(f"  {ball.capitalize()} Ball: {count}")
+            colored_name = self.colorize_pokeball_name(ball)
+            print(f"  {colored_name}: {count}")
         
         # displays berries section
         print("\n--- Berries ---")
         for berry, count in self.berries.items():
-            print(f"  {berry.capitalize()} Berry: {count}")
+            colored_name = self.colorize_berry_name(berry)
+            print(f"  {colored_name} Berry: {count}")
         
         # displays evolution stones section
         # only show stones that player has (count > 0)
@@ -212,7 +303,8 @@ class Inventory:
         stone_found = False  # flag to track if player has any stones
         for stone, count in self.stones.items():
             if count > 0:
-                print(f"  {stone.capitalize()} Stone: {count}")
+                colored_name = self.colorize_stone_name(stone)
+                print(f"  {colored_name} Stone: {count}")
                 stone_found = True  # player has at least one stone
         if not stone_found:
             print("  None")
@@ -226,7 +318,8 @@ class Inventory:
         for ptype, data in sorted(self.badges.items()):
             # if the player has earned a badge tier
             if data['tier']:
-                print(f"  {ptype.capitalize()}: {data['tier'].upper()} ({data['count']} caught)")
+                colored_tier = self.colorize_badge_tier(data['tier'])
+                print(f"  {ptype.capitalize()}: {colored_tier} ({data['count']} caught)")
                 badge_found = True
             
             elif data['count'] > 0: # if player has caught some pokemon but not enough for a badge

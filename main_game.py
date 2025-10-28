@@ -4,6 +4,8 @@ from player import Player
 from inventory import Inventory
 from pokedex import Pokedex
 from hunting_pokemon import HuntingSystem
+from colorama import Fore, Back, Style
+from colorama import just_fix_windows_console
 
 
 def clear_screen():
@@ -19,6 +21,7 @@ class PokemonGame:
     # ============================================================
     # initialize the game and create all the systems we need
     # ============================================================
+        just_fix_windows_console()  # Initialize colorama for Windows
         self.player = None  # will be created when game starts
         self.inventory = Inventory()  # player's items (balls, berries, badges, etc.)
         self.pokedex = Pokedex()  # tracks which pokemon have been seen/caught
@@ -64,10 +67,10 @@ class PokemonGame:
         print("begins now! Good luck, and remember to fill")
         print("your Pokédex!")
         
-        self.main_menu()
         # ============================================================
         # calls the main game loop
         # ============================================================
+        self.main_menu()
     
     def choose_starter(self):
         # ============================================================
@@ -244,8 +247,10 @@ class PokemonGame:
             return
         
         print("\n=== USE BERRY ===")
-        print(f"1. Razz Berry ({self.inventory.berries['razz']} available) - Increases catch chance")
-        print(f"2. Pinap Berry ({self.inventory.berries['pinap']} available) - Doubles candy reward")
+        razz_name = self.inventory.colorize_berry_name('razz')
+        pinap_name = self.inventory.colorize_berry_name('pinap')
+        print(f"1. {razz_name} Berry ({self.inventory.berries['razz']} available) - Increases catch chance")
+        print(f"2. {pinap_name} Berry ({self.inventory.berries['pinap']} available) - Doubles candy reward")
         print("3. Cancel")
         
         choice = input("\nChoose a berry: ").strip()
@@ -253,10 +258,10 @@ class PokemonGame:
         # try to use the selected berry
         if choice == '1' and self.inventory.use_berry('razz'):
             self.used_berry = 'razz'
-            print("\nYou used a Razz Berry! Catch chance increased!")
+            print(f"\nYou used a {razz_name} Berry! Catch chance increased!")
         elif choice == '2' and self.inventory.use_berry('pinap'):
             self.used_berry = 'pinap'
-            print("\nYou used a Pinap Berry! You'll get double candy if caught!")
+            print(f"\nYou used a {pinap_name} Berry! You'll get double candy if caught!")
         elif choice == '3':
             return 
         else:
@@ -272,10 +277,15 @@ class PokemonGame:
         
         # lets player choose which ball to use
         print("\n=== CHOOSE POKÉBALL ===")
-        print(f"1. Poké Ball ({self.inventory.pokeballs['poké']} available) - Base catch rate")
-        print(f"2. Great Ball ({self.inventory.pokeballs['great']} available) - 50% better")
-        print(f"3. Ultra Ball ({self.inventory.pokeballs['ultra']} available) - 125% better")
-        print(f"4. Master Ball ({self.inventory.pokeballs['master']} available) - 260% better")
+        poke_name = self.inventory.colorize_pokeball_name('poké')
+        great_name = self.inventory.colorize_pokeball_name('great')
+        ultra_name = self.inventory.colorize_pokeball_name('ultra')
+        master_name = self.inventory.colorize_pokeball_name('master')
+        
+        print(f"1. {poke_name} ({self.inventory.pokeballs['poké']} available) - Base catch rate")
+        print(f"2. {great_name} ({self.inventory.pokeballs['great']} available) - 50% better")
+        print(f"3. {ultra_name} ({self.inventory.pokeballs['ultra']} available) - 125% better")
+        print(f"4. {master_name} ({self.inventory.pokeballs['master']} available) - 260% better")
         print("5. Cancel")
         
         choice = input("\nChoose a ball: ").strip()
@@ -294,7 +304,8 @@ class PokemonGame:
         
         # checks if player can use the selected ball
         if not self.inventory.use_pokeball(ball_type):
-            print(f"\nYou don't have any {ball_type.capitalize()} Balls!")
+            ball_display = self.inventory.colorize_pokeball_name(ball_type)
+            print(f"\nYou don't have any {ball_display}s!")
             return
         
         # calculate catch rate based on multiple factors
@@ -307,7 +318,8 @@ class PokemonGame:
             self.used_berry
         )
         
-        print(f"\nYou throw a {ball_type.capitalize()} Ball...")
+        ball_display = self.inventory.colorize_pokeball_name(ball_type)
+        print(f"\nYou throw a {ball_display}...")
         print(f"Catch rate: {catch_rate*100:.1f}%")
         print("...")
         
@@ -335,7 +347,8 @@ class PokemonGame:
             stone_drop = Pokemon.can_drop_stone(self.wild_pokemon.id)
             if stone_drop:
                 self.inventory.add_stone(stone_drop)
-                print(f"The Pokémon dropped a {stone_drop.capitalize()} Stone!")
+                stone_name = self.inventory.colorize_stone_name(stone_drop)
+                print(f"The Pokémon dropped a {stone_name} Stone!")
             self.wild_pokemon = None 
         elif result == 'fled':
             print(f"\nOh no! {self.wild_pokemon.name.capitalize()} broke free and fled!")
@@ -610,8 +623,12 @@ class PokemonGame:
                 input("Press Enter to continue...")
                 return
             
-            print("\nAvailable stones: fire, water, thunder, leaf, moon")
-            stone_type = input("Which stone? ").strip().lower()
+            print("\nAvailable stones:")
+            for stone_type in ['fire', 'water', 'thunder', 'leaf', 'moon']:
+                stone_name = self.inventory.colorize_stone_name(stone_type)
+                print(f"  - {stone_name}")
+            
+            stone_type = input("\nWhich stone? ").strip().lower()
             
             if stone_type not in self.inventory.stones:
                 print("Invalid stone type!")
@@ -722,13 +739,16 @@ class PokemonGame:
             item_type, item_name, quantity = result
             if item_type == 'pokéball':
                 self.inventory.add_pokeball(item_name, quantity)
-                print(f"\nYou won {quantity} {item_name.capitalize()} Ball(s)!")
+                ball_name = self.inventory.colorize_pokeball_name(item_name)
+                print(f"\nYou won {quantity} {ball_name}(s)!")
             elif item_type == 'berry':
                 self.inventory.add_berry(item_name, quantity)
-                print(f"\nYou won {quantity} {item_name.capitalize()} Berr{'y' if quantity == 1 else 'ies'}!")
+                berry_name = self.inventory.colorize_berry_name(item_name)
+                print(f"\nYou won {quantity} {berry_name} Berr{'y' if quantity == 1 else 'ies'}!")
             elif item_type == 'stone':
                 self.inventory.add_stone(item_name, quantity)
-                print(f"\nJACKPOT! You won a {item_name.capitalize()} Stone!")
+                stone_name = self.inventory.colorize_stone_name(item_name)
+                print(f"\nJACKPOT! You won a {stone_name} Stone!")
         else:
             print("\nBetter luck next time!")
         

@@ -2,7 +2,8 @@
 # it tracks which pokemon the player has seen and caught
 # it also includes a lottery system for winning free items
 
-import random 
+import random
+from colorama import Fore, Style
 
 class Pokedex:
     # ============================================================
@@ -64,7 +65,7 @@ class Pokedex:
         # ============================================================
         print("\n=== POKÉDEX ===")
         print(f"Seen: {len(self.seen)} | Caught: {len(self.caught)} | Total: 151")
-        print("\nLegend: ??? (Not Seen) | NAME (Seen) | √ NAME (Caught)\n")
+        print(f"\nLegend: ??? (Not Seen) | {Fore.BLUE}NAME (Seen){Style.RESET_ALL} | {Fore.GREEN}√ NAME (Caught){Style.RESET_ALL}\n")
         
         # calculates how many pages for the 151 pokemon
         total_pokemon = 151  # total pokemon in gen 1
@@ -84,13 +85,14 @@ class Pokedex:
             # check if pokemon has been caught
             if i in self.caught:
                 data = self.caught[i]
-                # show checkmark, name, and type for caught pokemon
-                print(f"  #{i:03d}: √ {data['name'].capitalize()} - Type: {data['type']}")
+                # show checkmark, name, and type for caught pokemon in GREEN
+                print(f"  #{i:03d}: {Fore.GREEN}√ {data['name'].capitalize()} - Type: {data['type']}{Style.RESET_ALL}")
             # check if pokemon has been seen (but not caught)
             elif i in self.seen:
                 try:
                     data = get_pokemon_data_func(i)  # get basic data
-                    print(f"  #{i:03d}: {data['name'].capitalize()} (Seen only)") # show name for seen pokemon
+                    # show name for seen pokemon in BLUE
+                    print(f"  #{i:03d}: {Fore.BLUE}{data['name'].capitalize()} (Seen only){Style.RESET_ALL}")
                 except:
                     # if data fetch fails, show as not seen
                     print(f"  #{i:03d}: ??? (Not seen)")
@@ -124,13 +126,13 @@ class Pokedex:
             print(f"Attack: {data['attack']}")
             print(f"Defense: {data['defense']}")
             print(f"Speed: {data['speed']}")
-            print(f"Status: CAUGHT √")
+            print(f"Status: {Fore.GREEN}CAUGHT √{Style.RESET_ALL}")
         elif pokemon_id in self.seen: # check if Pokemon has been seen
             try:
                 data = get_pokemon_data_func(pokemon_id) # show limited info for seen Pokemon
                 print(f"\n=== {data['name'].upper()} (#{pokemon_id:03d}) ===")
                 print(f"Type: {data['type'].capitalize()}")
-                print(f"Status: SEEN (Not caught yet)")
+                print(f"Status: {Fore.BLUE}SEEN (Not caught yet){Style.RESET_ALL}")
                 print("Catch this Pokémon to see full stats!")
             except:
                 print("Pokémon data not available.")
